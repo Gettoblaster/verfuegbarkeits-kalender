@@ -30,28 +30,24 @@
   <div id="entries">Lade…</div>
 
   <script>
-    // ➔ Hier deine Apps‑Script‑exec‑URL einfügen:
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwe2su_-i3FCsdNf17QtHWuknIzAB8kuSNNp4WX7f6GgDRXmkl77gNnQOX03DYbjIex2Q/exec';
+    // Auf unseren Proxy-Endpoint zeigen
+    const API_ENDPOINT = '/api/entries';
 
     async function loadEntries() {
-      try {
-        const res = await fetch(`${API_URL}?action=get`);
-        const entries = await res.json();
-        const container = document.getElementById('entries');
-        if (!entries || entries.length < 2) {
-          container.innerText = 'Keine Einträge.';
-          return;
-        }
-        let html = '<ul>';
-        for (let i = 1; i < entries.length; i++) {
-          const [name, date, from, to, comment] = entries[i];
-          html += `<li><strong>${name}</strong>: ${date} ${from}–${to}${comment ? ' – '+comment : ''}</li>`;
-        }
-        html += '</ul>';
-        container.innerHTML = html;
-      } catch (err) {
-        console.error(err);
+      const res = await fetch(API_ENDPOINT);
+      const entries = await res.json();
+      const container = document.getElementById('entries');
+      if (!entries || entries.length < 2) {
+        container.innerText = 'Keine Einträge.';
+        return;
       }
+      let html = '<ul>';
+      for (let i = 1; i < entries.length; i++) {
+        const [name, date, from, to, comment] = entries[i];
+        html += `<li><strong>${name}</strong>: ${date} ${from}–${to}${comment ? ' – '+comment : ''}</li>`;
+      }
+      html += '</ul>';
+      container.innerHTML = html;
     }
 
     document.getElementById('entryForm').addEventListener('submit', async e => {
@@ -64,26 +60,22 @@
         to:      data.get('to'),
         comment: data.get('comment')
       };
-      try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const result = await res.json();
-        if (result.status === 'ok') {
-          alert('Eintrag gespeichert!');
-          e.target.reset();
-          loadEntries();
-        } else {
-          alert('Fehler: ' + (result.message || ''));
-        }
-      } catch (err) {
-        console.error(err);
+      const res = await fetch(API_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (result.status === 'ok') {
+        alert('Eintrag gespeichert!');
+        e.target.reset();
+        loadEntries();
+      } else {
+        alert('Fehler: ' + (result.message || ''));
       }
     });
 
-    // Lade Einträge beim Start
+    // initial laden
     loadEntries();
   </script>
 </body>
