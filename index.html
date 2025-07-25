@@ -1,3 +1,4 @@
+<!-- File: index.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -15,22 +16,22 @@
 <body>
   <h1>Verfügbarkeitskalender</h1>
   <form id="entryForm">
-    <input name="name" type="text" placeholder="Name" required />
-    <input name="date" type="date" required />
-    <input name="from" type="time" required />
-    <input name="to" type="time" required />
-    <input name="comment" type="text" placeholder="Kommentar" />
+    <input name="name"    type="text"   placeholder="Name"    required />
+    <input name="date"    type="date"   required />
+    <input name="from"    type="time"   required />
+    <input name="to"      type="time"   required />
+    <input name="comment" type="text"   placeholder="Kommentar" />
     <button type="submit">Eintragen</button>
   </form>
 
   <hr />
 
   <h2>Alle Einträge</h2>
-  <div id="entries">Lade&hellip;</div>
+  <div id="entries">Lade…</div>
 
   <script>
-    // Trage hier deine Web-App-URL ein:
-    const API_URL = 'https://script.google.com/macros/s/AKfycbxAkMM6OnbsPg4Ezl7T7oJ12GEc-DbmKop22cla-QoNCPJkJ9gWMQHKSFFf9ov5S9Trnw/exec';
+    // ➔ Hier deine Apps‑Script‑exec‑URL einfügen:
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwe2su_-i3FCsdNf17QtHWuknIzAB8kuSNNp4WX7f6GgDRXmkl77gNnQOX03DYbjIex2Q/exec';
 
     async function loadEntries() {
       try {
@@ -56,18 +57,18 @@
     document.getElementById('entryForm').addEventListener('submit', async e => {
       e.preventDefault();
       const data = new FormData(e.target);
-      const body = {
-        name: data.get('name'),
-        date: data.get('date'),
-        from: data.get('from'),
-        to: data.get('to'),
+      const payload = {
+        name:    data.get('name'),
+        date:    data.get('date'),
+        from:    data.get('from'),
+        to:      data.get('to'),
         comment: data.get('comment')
       };
       try {
         const res = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+          body: JSON.stringify(payload)
         });
         const result = await res.json();
         if (result.status === 'ok') {
@@ -82,6 +83,7 @@
       }
     });
 
+    // Lade Einträge beim Start
     loadEntries();
   </script>
 </body>
