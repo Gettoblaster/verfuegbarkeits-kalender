@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verfügbarkeitskalender</title>
+  <style>
+    body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
+    input, button { padding: 0.5rem; margin: 0.25rem 0; width: 100%; box-sizing: border-box; }
+    button { cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { padding: 0.5rem 0; border-bottom: 1px solid #ddd; }
+  </style>
+</head>
+<body>
+  <h1>Verfügbarkeitskalender</h1>
+  <form id="entryForm">
+    <input name="name"    type="text"     placeholder="Name"      required />
+    <input name="date"    type="date"     required />
+    <input name="from"    type="time"     required />
+    <input name="to"      type="time"     required />
+    <input name="comment" type="text"     placeholder="Kommentar" />
+    <button type="submit">Eintragen</button>
+  </form>
+
+  <hr/>
+
+  <h2>Alle Einträge</h2>
+  <div id="entries">Lade…</div>
+
+  <script>
+    const form = document.getElementById('entryForm');
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const data = new FormData(form);
+      google.script.run
+        .withSuccessHandler(() => {
+          alert('Eintrag gespeichert!');
+          form.reset();
+          loadEntries();
+        })
+        .addEntry(
+          data.get('name'),
+          data.get('date'),
+          data.get('from'),
+          data.get('to'),
+          data.get('comment')
+        );
+    });
+
+    function loadEntries() {
+      google.script.run.withSuccessHandler(entries => {
+        if (!entries || entries.length < 2) {
+          document.getElementById('entries').innerText = 'Keine Einträge.';
+          return;
+        }
+        let html = '<ul>';
+        for (let i = 1; i < entries.length; i++) {
+          const [name, date, from, to, comment] = entries[i];
+          html += `<li><strong>${name}</strong>: ${date} ${from}–${to}${comment ? ' – ' + comment : ''}</li>`;
+        }
+        html += '</ul>';
+        document.getElementById('entries').innerHTML = html;
+      }).getEntries();
+    }
+
+    // Beim Laden direkt holen
+    loadEntries();
+  </script>
+</body>
+</html>
