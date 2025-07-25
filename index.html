@@ -1,8 +1,9 @@
+<!-- File: index.html -->
 <!DOCTYPE html>
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Verfügbarkeitskalender</title>
   <style>
     body { font-family: sans-serif; padding: 1rem; max-width: 600px; margin: auto; }
@@ -15,56 +16,74 @@
 <body>
   <h1>Verfügbarkeitskalender</h1>
   <form id="entryForm">
-    <input name="name"    type="text"     placeholder="Name"      required />
-    <input name="date"    type="date"     required />
-    <input name="from"    type="time"     required />
-    <input name="to"      type="time"     required />
-    <input name="comment" type="text"     placeholder="Kommentar" />
+    <input name="name"    type="text"   placeholder="Name"    required />
+    <input name="date"    type="date"   required />
+    <input name="from"    type="time"   required />
+    <input name="to"      type="time"   required />
+    <input name="comment" type="text"   placeholder="Kommentar" />
     <button type="submit">Eintragen</button>
   </form>
 
-  <hr/>
+  <hr />
 
   <h2>Alle Einträge</h2>
   <div id="entries">Lade…</div>
 
   <script>
-    const form = document.getElementById('entryForm');
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const data = new FormData(form);
-      google.script.run
-        .withSuccessHandler(() => {
-          alert('Eintrag gespeichert!');
-          form.reset();
-          loadEntries();
-        })
-        .addEntry(
-          data.get('name'),
-          data.get('date'),
-          data.get('from'),
-          data.get('to'),
-          data.get('comment')
-        );
-    });
+    // Trage hier deine Web-App-URL ein:
+    const API_URL = 'https://script.google.com/macros/s/AKfycbwo9BRZEyt6n__SbQSqqLHfsBDCyq1l28c0GcPIyd3_3F4HEi3QOTpHOKeOsCl1tpXh6Q/exec';
 
-    function loadEntries() {
-      google.script.run.withSuccessHandler(entries => {
+    async function loadEntries() {
+      try {
+        const res = await fetch(`${API_URL}?action=get`);
+        const entries = await res.json();
+        const container = document.getElementById('entries');
         if (!entries || entries.length < 2) {
-          document.getElementById('entries').innerText = 'Keine Einträge.';
+          container.innerText = 'Keine Einträge.';
           return;
         }
         let html = '<ul>';
         for (let i = 1; i < entries.length; i++) {
           const [name, date, from, to, comment] = entries[i];
-          html += `<li><strong>${name}</strong>: ${date} ${from}–${to}${comment ? ' – ' + comment : ''}</li>`;
+          html += `<li><strong>${name}</strong>: ${date} ${from}–${to}${comment ? ' – '+comment : ''}</li>`;
         }
         html += '</ul>';
-        document.getElementById('entries').innerHTML = html;
-      }).getEntries();
+        container.innerHTML = html;
+      } catch (err) {
+        console.error(err);
+      }
     }
 
-    // Beim Laden direkt holen
+    document.getElementById('entryForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const data = new FormData(e.target);
+      const body = {
+        name:    data.get('name'),
+        date:    data.get('date'),
+        from:    data.get('from'),
+        to:      data.get('to'),
+        comment: data.get('comment')
+      };
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (result.status === 'ok') {
+          alert('Eintrag gespeichert!');
+          e.target.reset();
+          loadEntries();
+        } else {
+          alert('Fehler: ' + (result.message || ''));
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    });
+
+    // Beim Laden direkt alle Einträge holen
     loadEntries();
   </script>
 </body>
