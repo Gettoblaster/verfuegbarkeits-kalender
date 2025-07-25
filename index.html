@@ -15,11 +15,11 @@
 <body>
   <h1>Verfügbarkeitskalender</h1>
   <form id="entryForm">
-    <input name="name"    type="text"   placeholder="Name"    required />
-    <input name="date"    type="date"   required />
-    <input name="from"    type="time"   required />
-    <input name="to"      type="time"   required />
-    <input name="comment" type="text"   placeholder="Kommentar" />
+    <input name="name" type="text" placeholder="Name" required />
+    <input name="date" type="date" required />
+    <input name="from" type="time" required />
+    <input name="to" type="time" required />
+    <input name="comment" type="text" placeholder="Kommentar" />
     <button type="submit">Eintragen</button>
   </form>
 
@@ -30,7 +30,7 @@
 
   <script>
     // Trage hier deine Web-App-URL ein:
-    const API_URL = 'https://script.google.com/macros/s/AKfycbwzwp2eTP3CYbHzH6TcDC5IijBceXnTLnlFsBAv7Gg1tt4z3qpJdurPJawU-LSMlzcsOw/exec';
+    const API_URL = 'https://script.google.com/macros/s/AKfycbxAkMM6OnbsPg4Ezl7T7oJ12GEc-DbmKop22cla-QoNCPJkJ9gWMQHKSFFf9ov5S9Trnw/exec';
 
     async function loadEntries() {
       try {
@@ -57,10 +57,10 @@
       e.preventDefault();
       const data = new FormData(e.target);
       const body = {
-        name:    data.get('name'),
-        date:    data.get('date'),
-        from:    data.get('from'),
-        to:      data.get('to'),
+        name: data.get('name'),
+        date: data.get('date'),
+        from: data.get('from'),
+        to: data.get('to'),
         comment: data.get('comment')
       };
       try {
@@ -82,7 +82,6 @@
       }
     });
 
-    // Beim Laden direkt alle Einträge holen
     loadEntries();
   </script>
 </body>
